@@ -430,7 +430,11 @@ secret_objects_lookup_gck_object_for_path (GkdSecretObjects *self,
 
 	/* The session we're using to access the object */
 	session = gkd_secret_service_get_pkcs11_session (self->service, sender);
-	g_return_val_if_fail (session, FALSE);
+	if (!session) {
+		g_set_error (error_out, GKD_SECRET_ERROR, GKD_SECRET_ERROR_NO_SUCH_OBJECT,
+			     "No PKCS#11 session for client");
+		return NULL;
+	}
 
 	if (i_ident) {
 		gck_builder_add_ulong (&builder, CKA_CLASS, CKO_SECRET_KEY);
